@@ -22,18 +22,21 @@ const join = (req, res) => {
 };
 
 const login = (req, res) => {
-
+    const { email, password } = req.body;
 };
 
-const reset = (req, res) => {
-
+const passwordResetRequest = (req, res) => {
+    const { password } = req.body;
 };
 
-const reset2 = (req, res) => {
-
+const passwordReset = (req, res) => {
+    const { password } = req.body;
 };
 
 
 module.exports = { 
-    join 
+    join,
+    login,
+    passwordResetRequest,
+    passwordReset
 };
