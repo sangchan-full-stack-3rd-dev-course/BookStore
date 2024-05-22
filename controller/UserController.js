@@ -56,13 +56,44 @@ const login = (req, res) => {
 };
 
 const passwordResetRequest = (req, res) => {
-    const { password } = req.body;
+    const { email } = req.body;
+
+    let sql = `SELECT * FROM users WHERE email= ?`;
+
+    connection.query(sql, email, (err, results)=>{
+        if(err) {
+            console.error(err);
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        }
+
+        const user = results[0];
+        if(user){
+            res.status(StatusCodes.OK).end();
+        } else {
+            res.status(StatusCodes.UNAUTHORIZED).end(); 
+        }
+    });
 };
 
 const passwordReset = (req, res) => {
-    const { password } = req.body;
-};
+    const { email, password } = req.body;
 
+    let sql = `UPDATE users SET password = ? WHERE email= ?`;
+    let values = [email, password];
+
+    connection.query(sql, values, (err, results)=>{
+        if(err) {
+            console.error(err);
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        }
+        
+        if(results.attectedRows == 0){
+            res.status(StatusCodes.UNAUTHORIZED).end(); 
+        } else {
+            res.status(StatusCodes.OK).end(); 
+        }
+    });
+};
 
 module.exports = { 
     join,
