@@ -3,14 +3,20 @@ const {
     StatusCodes
 } = require('http-status-codes');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const join = (req, res) => {
     const { email, name, password } = req.body;
 
-    let sql = `INSERT INTO users (email, name, password) VALUES(?,?,?)`;
-    let values = [email, name, password];
+    // 64 바이트의 랜덤 문자열 생성
+    const salt = crypto.randomBytes(10).toString('base64');
+    // sha512 알고리즘으로 password + salt 문자열을 10000번 암호화함
+    const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+
+    let sql = `INSERT INTO users (email, name, password, salt) VALUES(?,?,?,?)`;
+    let values = [email, name, hashPassword, salt];
 
     connection.query(sql, values, (err, results)=>{
         if(err) {
@@ -37,7 +43,9 @@ const login = (req, res) => {
 
         const loginUser = results[0];
 
-        if(loginUser && loginUser.password == password){
+        const inputPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+
+        if(loginUser && inputPassword == loginUser.password){
             const token = jwt.sign({ email : loginUser.email },
                 process.env.SECRET_KEY,
                 { expiresIn : '30m', issuer : 'HK' }
@@ -68,7 +76,9 @@ const passwordResetRequest = (req, res) => {
 
         const user = results[0];
         if(user){
-            res.status(StatusCodes.OK).end();
+            res.status(StatusCodes.OK).json({
+                msg : "바꾸샘"
+            });
         } else {
             res.status(StatusCodes.UNAUTHORIZED).end(); 
         }
@@ -78,8 +88,13 @@ const passwordResetRequest = (req, res) => {
 const passwordReset = (req, res) => {
     const { email, password } = req.body;
 
-    let sql = `UPDATE users SET password = ? WHERE email= ?`;
-    let values = [email, password];
+    // 64 바이트의 랜덤 문자열 생성
+    const salt = crypto.randomBytes(10).toString('base64');
+    // sha512 알고리즘으로 password + salt 문자열을 10000번 암호화함
+    const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+
+    let sql = `UPDATE users SET password = ?, salt = ? WHERE email= ?`;
+    let values = [hashPassword, salt, email];
 
     connection.query(sql, values, (err, results)=>{
         if(err) {
