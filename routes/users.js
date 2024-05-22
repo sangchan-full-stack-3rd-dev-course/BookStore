@@ -1,11 +1,27 @@
 const express = require('express');
 const router = express.Router();
+const connection = require('../db/connect');
+const {
+    StatusCodes
+} = require('http-status-codes');
 
 router.use(express.json());
 
 // 회원 가입
 router.post("/join", (req, res)=>{
-    const { email, password} = req.body;
+    const { email, name, password } = req.body;
+
+    let sql = `INSERT INTO users (email, name, password) VALUES(?,?,?)`;
+    let values = [email, name, password];
+
+    connection.query(sql, values, (err, result)=>{
+        if(err) {
+            console.error(err);
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        }
+
+        res.status(StatusCodes.CREATED).json();
+    });
 });
 
 // 로그인
