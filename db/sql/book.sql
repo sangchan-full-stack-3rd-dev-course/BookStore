@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS books (
     pages INT NOT NULL,
     contents TEXT NOT NULL,
     price INT NOT NULL,
-    pub_date TIMESTAMP NOT NULL DEFAULT now()
+    pub_date TIMESTAMP NOT NULL DEFAULT now(),
+    FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS category (
