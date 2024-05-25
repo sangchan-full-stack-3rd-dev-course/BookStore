@@ -18,10 +18,6 @@ const getBooks = (req, res)=>{
     let wheres = [];
     let values = [];
 
-    if (isNew || category_id){
-        sql += ` WHERE`;
-    }
-
     if (category_id != undefined){
         wheres.push(` category_id = ?`);
         values.push(category_id);
@@ -31,13 +27,16 @@ const getBooks = (req, res)=>{
         // TODO : 나중에 현 날짜 기준으로 신간 데이터 넣어서 확인하기 -> INTERVAL 1 MONTH로 바꾸기
         wheres.push(` pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 6 MONTH) AND NOW()`);
     }
-    
-    sql = sql + wheres.join(` AND`);
+
+    if(wheres.length){
+        sql += ` WHERE` + wheres.join(` AND`);
+    }
 
     if (currentPage && booksPerPage){
         sql += ` LIMIT ? OFFSET ?`;
         values.push(booksPerPage);
         values.push((currentPage-1) * booksPerPage);
+        
         // sql += ` LIMIT ?, ?`;
         // values.push((page-1) * booksPerPage);
         // values.push(booksPerPage);
