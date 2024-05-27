@@ -11,7 +11,7 @@ router.use(express.json());
 router.get("/", getBooks);
 
 // 도서 상세 정보 조회
-router.get("/:id", getBookInfo);
+router.get("/:book_id", getBookInfo);
 
 
 module.exports = router;

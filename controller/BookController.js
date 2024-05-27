@@ -14,7 +14,9 @@ const getBooks = (req, res)=>{
     // 따라서 복습 때는 body에 담는 방법을 사용
     let { isNew, currentPage, booksPerPage, keyword, category_id } = req.body;
 
-    let sql = `SELECT * FROM books`;
+    let sql = `SELECT *, (select count(*) from likes where liked_book_id = books.id) as likes,
+                (select exists (select * from likes where user_id = 1 and liked_book_id = books.id)) as isLike
+                FROM books`;
     let wheres = [];
     let values = [];
 
@@ -60,13 +62,20 @@ const getBooks = (req, res)=>{
 
 // 해당 책의 정보만 가져옴
 const getBookInfo = (req, res) => {
-    let { id } = req.params;
-    id = parseInt(id)
+    let { book_id } = req.params;
+    let { user_id } = req.body;
+    
+    book_id = parseInt(book_id)
+    user_id = parseInt(user_id)
 
-    let sql = `SELECT B.id, B.title, C.name, B.form, B.summary, B.detail, B.author, B.pages, B.contents, B.price, B.pub_date
+    let sql = `SELECT B.id, B.title, C.name, B.form, B.summary, B.detail, B.author, B.pages, B.contents, B.price, B.pub_date,
+                (select count(*) from likes where liked_book_id = B.id) as likes,
+                (select exists (select * from likes where user_id = ? and liked_book_id = B.id)) as isLike
                 FROM books as B LEFT JOIN category as C ON B.category_id = C.id WHERE B.id = ?`;
 
-    connection.query(sql, id, (err, results)=>{
+    let values = [user_id, book_id]
+
+    connection.query(sql, values, (err, results)=>{
         if(err) {
             console.error(err);
             return res.status(StatusCodes.BAD_REQUEST).end();
