@@ -52,22 +52,23 @@ const getCartItems = (req, res) => {
 
 // 장바구니 삭제
 const deleteCartItem = (req, res) => {
-    const { cart_id } = req.params;
+    let { cart_id } = req.params;
+    cart_id = parseInt(cart_id);
     
-    // connection.query(sql, category_id, (err, results)=>{
-    //     if(err) {
-    //         console.error(err);
-    //         return res.status(StatusCodes.BAD_REQUEST).end();
-    //     }
+    let sql = `DELETE FROM cartItems WHERE id =?`;
 
-    //     if(results.length) {
-    //         res.status(StatusCodes.OK).json({
-    //             categorys : results
-    //         });
-    //     } else {
-    //         res.status(StatusCodes.NOT_FOUND).end();
-    //     }
-    // });
+    connection.query(sql, cart_id, (err, results)=>{
+        if(err) {
+            console.error(err);
+            return res.status(StatusCodes.BAD_REQUEST).end();
+        }
+
+        if(results.attectedRows == 0){
+            res.status(StatusCodes.NOT_FOUND).end(); 
+        } else {
+            res.status(StatusCodes.OK).end(); 
+        }
+    });
 }
 
 module.exports = {

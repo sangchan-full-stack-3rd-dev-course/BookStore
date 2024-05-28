@@ -15,6 +15,6 @@ router.post("/", addToCart);
 router.get("/", getCartItems);
 
 // 장바구니 삭제
-router.delete("/:cartId", deleteCartItem);
+router.delete("/:cart_id", deleteCartItem);
 
 module.exports = router;

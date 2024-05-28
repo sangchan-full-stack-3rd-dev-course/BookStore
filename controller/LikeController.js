@@ -34,7 +34,7 @@ const removeLike = (req, res) => {
         }
 
         if(results.attectedRows == 0){
-            res.status(StatusCodes.UNAUTHORIZED).end(); 
+            res.status(StatusCodes.NOT_FOUND).end(); 
         } else {
             res.status(StatusCodes.OK).end(); 
         }
