@@ -28,13 +28,20 @@ const addToCart = (req, res) => {
 // 장바구니 아이템 목록 조회
 const getCartItems = (req, res) => {
     // cartIds 가 있으면 선택 상품, 없으면 전체 조회
-    const { cartIds, user_id } = req.body;
+    const { cart_ids, user_id } = req.body;
+
+    let values = [user_id];
 
     let sql = `SELECT cartItems.id, book_id, title, summary, count, price 
                 FROM cartItems LEFT JOIN books ON cartItems.book_id = books.id
                 WHERE user_id = ?`;
+    
+    if (cart_ids.length) {
+        values.push(cart_ids);
+        sql += ` AND cartItems.id IN (?)`;
+    }
 
-    connection.query(sql, user_id, (err, results)=>{
+    connection.query(sql, values, (err, results)=>{
         if(err) {
             console.error(err);
             return res.status(StatusCodes.BAD_REQUEST).end();
