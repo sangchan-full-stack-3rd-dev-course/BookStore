@@ -1,0 +1,11 @@
+/*CREATE TABLE IF NOT EXISTS orders ();*/
+
+CREATE TABLE IF NOT EXISTS cartItems (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    user_id INT NOT NULL,
+    count INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books (id) ON DELETE CASCADE,
+    UNIQUE KEY (book_id, user_id)
+);
