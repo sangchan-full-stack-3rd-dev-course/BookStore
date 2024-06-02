@@ -1,9 +1,8 @@
-INSERT INTO likes (user_id, liked_book_id) VALUES (1, 1);
-INSERT INTO likes (user_id, liked_book_id) VALUES (1, 2);
-INSERT INTO likes (user_id, liked_book_id) VALUES (1, 3);
-INSERT INTO likes (user_id, liked_book_id) VALUES (3, 1);
-INSERT INTO likes (user_id, liked_book_id) VALUES (4, 4);
-INSERT INTO likes (user_id, liked_book_id) VALUES (2, 1);
-INSERT INTO likes (user_id, liked_book_id) VALUES (2, 2);
-INSERT INTO likes (user_id, liked_book_id) VALUES (2, 3);
-INSERT INTO likes (user_id, liked_book_id) VALUES (2, 5);
+TRUNCATE cartItems;
+TRUNCATE orders;
+TRUNCATE orderedBook;
+INSERT INTO cartItems (book_id, count, user_id) VALUES (1, 5, 1);
+INSERT INTO cartItems (book_id, count, user_id) VALUES (1, 5, 1);
+INSERT INTO cartItems (book_id, count, user_id) VALUES (3, 1, 1);
+
+select * from cartItems;

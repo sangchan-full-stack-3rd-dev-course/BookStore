@@ -15,6 +15,6 @@ router.post("/", addOrder);
 router.get("/", getOrders);
 
 // 주문 상세 상품 조회
-router.get("/:book_id", getOrderDetail);
+router.get("/:order_id", getOrderDetail);
 
 module.exports = router;
