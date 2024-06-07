@@ -4,7 +4,7 @@ dotenv.config();
 
 const verifyToken = (req) => {
     try{
-        let token = req.headers['authorization'];
+        let token = req.cookies.token;
         let userInfo = jwt.verify(token, process.env.SECRET_KEY);
         return userInfo;
     } catch(err){

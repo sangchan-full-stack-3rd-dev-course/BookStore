@@ -1,7 +1,10 @@
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 dotenv.config();
+
+app.use(cookieParser());
 
 // router
 const userRouter = require("./routes/users");
