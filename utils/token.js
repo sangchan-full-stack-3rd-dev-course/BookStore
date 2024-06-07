@@ -5,6 +5,11 @@ dotenv.config();
 const verifyToken = (req) => {
     try{
         let token = req.cookies.token;
+
+        if(!token){
+            throw new ReferenceError("jwt must be provided");
+        }
+
         let userInfo = jwt.verify(token, process.env.SECRET_KEY);
         return userInfo;
     } catch(err){

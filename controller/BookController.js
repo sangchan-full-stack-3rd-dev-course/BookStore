@@ -2,8 +2,10 @@ const connection = require('../db/connect');
 const {
     StatusCodes
 } = require('http-status-codes');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+const {
+    verifyToken
+} = require('../utils/token');
+const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -63,17 +65,29 @@ const getBooks = (req, res)=>{
 // 해당 책의 정보만 가져옴
 const getBookInfo = (req, res) => {
     let { book_id } = req.params;
-    let { user_id } = req.body;
-    
-    book_id = parseInt(book_id)
-    user_id = parseInt(user_id)
+    book_id = parseInt(book_id);
+
+    let userInfo = verifyToken(req);
 
     let sql = `SELECT B.id, B.title, C.name, B.form, B.summary, B.detail, B.author, B.pages, B.contents, B.price, B.pub_date,
-                (select count(*) from likes where liked_book_id = B.id) as likes,
-                (select exists (select * from likes where user_id = ? and liked_book_id = B.id)) as isLike
-                FROM books as B LEFT JOIN category as C ON B.category_id = C.id WHERE B.id = ?`;
+                (select count(*) from likes where liked_book_id = B.id) as likes`;
 
-    let values = [user_id, book_id]
+    let values = [];
+
+    if (userInfo instanceof TokenExpiredError) {
+        console.error("1:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else if (userInfo instanceof JsonWebTokenError) {
+        console.error("2:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else if (userInfo instanceof ReferenceError) {
+        values = [book_id];
+    } else {
+        sql += `, (select exists (select * from likes where user_id = ? and liked_book_id = B.id)) as isLike`;
+        values = [userInfo.user_id, book_id];
+    }
+    
+    sql += ` FROM books as B LEFT JOIN category as C ON B.category_id = C.id WHERE B.id = ?`;
 
     connection.query(sql, values, (err, results)=>{
         if(err) {
