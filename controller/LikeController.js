@@ -36,10 +36,20 @@ const addLike = (req, res) => {
 };
 
 const removeLike = (req, res) => {
-    let { book_id, user_id } = req.body;
+    let { book_id } = req.body;
+
+    let userInfo = verifyToken(req);
+
+    if (userInfo instanceof TokenExpiredError) {
+        console.error("1:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else if (userInfo instanceof JsonWebTokenError) {
+        console.error("2:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    }
 
     let sql = `DELETE FROM likes where user_id = ? and liked_book_id = ?`;
-    let values = [user_id, book_id];
+    let values = [userInfo.user_id, book_id];
 
     connection.query(sql, values, (err, results)=>{
         if(err) {
@@ -47,10 +57,14 @@ const removeLike = (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).end();
         }
 
-        if(results.attectedRows == 0){
-            res.status(StatusCodes.NOT_FOUND).end(); 
+        console.log(results);
+
+        if(results.affectedRows === 0){
+            res.status(StatusCodes.NOT_FOUND).end();
         } else {
-            res.status(StatusCodes.OK).end(); 
+            res.status(StatusCodes.OK).json({
+                msg : "성공"
+            }); 
         }
     });
 };
