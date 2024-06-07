@@ -3,6 +3,10 @@ const mariadb = require('mysql2/promise');
 const {
     StatusCodes
 } = require('http-status-codes');
+const {
+    verifyToken
+} = require('../utils/token');
+const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -15,7 +19,17 @@ const addOrder = async (req, res) => {
         password: process.env.DB_PSWORD,
     });
 
-    const { items, delivery, totalCount, totalPrice, user_id, firstBookTitle } = req.body;
+    const { items, delivery, totalCount, totalPrice, firstBookTitle } = req.body;
+
+    let userInfo = verifyToken(req);
+
+    if (userInfo instanceof TokenExpiredError) {
+        console.error("1:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else if (userInfo instanceof JsonWebTokenError) {
+        console.error("2:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    }
 
     // select items data
     let sql_s = `SELECT book_id, count FROM cartItems WHERE id in (?)`;
@@ -32,7 +46,7 @@ const addOrder = async (req, res) => {
     
     // insert order
     let sql2 = `INSERT INTO orders (book_title, total_amount, total_price, user_id, delivery_id) VALUES(?,?,?,?,?)`;
-    values = [firstBookTitle, totalCount, totalPrice, user_id, delivery_id];
+    values = [firstBookTitle, totalCount, totalPrice, userInfo.user_id, delivery_id];
     [results] = await conn.execute(sql2, values);
     let order_id = results.insertId;
     
@@ -64,14 +78,22 @@ const getOrders = async (req, res) => {
         database: process.env.DB_NAME,
         password: process.env.DB_PSWORD,
     });
-    
-    const { user_id } = req.body;
+
+    let userInfo = verifyToken(req);
+
+    if (userInfo instanceof TokenExpiredError) {
+        console.error("1:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    } else if (userInfo instanceof JsonWebTokenError) {
+        console.error("2:",userInfo.message);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+    }
     
     const sql = `SELECT orders.id, book_title, total_amount, total_price, created_at, address, receiver, contact
                     FROM orders LEFT JOIN delivery
                     ON orders.delivery_id = delivery.id
                     WHERE user_id = 1;`
-    const [results, fields] = await conn.query(sql, user_id);
+    const [results, fields] = await conn.query(sql, userInfo.user_id);
 
     return res.status(StatusCodes.OK).json(results);
 };
