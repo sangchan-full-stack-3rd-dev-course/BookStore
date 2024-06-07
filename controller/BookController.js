@@ -14,6 +14,8 @@ const getBooks = (req, res)=>{
     // 강의에서는 query string 사용해서 받음.
     // React 에서는 request 전달 시, body로 받는게 편할 수 있음.
     // 따라서 복습 때는 body에 담는 방법을 사용
+    let allBooksRes = {};
+
     let { isNew, currentPage, booksPerPage, keyword, category_id } = req.body;
 
     let sql = `SELECT *, (select count(*) from likes where liked_book_id = books.id) as likes,
@@ -53,12 +55,27 @@ const getBooks = (req, res)=>{
         }
 
         if(results.length) {
-            res.status(StatusCodes.OK).json({
-                books : results
-            });
+            allBooksRes.books = results;
         } else {
             res.status(StatusCodes.NOT_FOUND).end();
         }
+
+        sql = `SELECT found_rows()`;
+
+        connection.query(sql, (err, results)=>{
+            if(err) {
+                console.log(err);
+                return res.status(StatusCodes.BAD_REQUEST).end();
+            }
+
+            let pagenation = {};
+            pagenation.currentPage = currentPage;
+            pagenation.totalCount = results[0]["found_rows()"];
+
+            allBooksRes.pagenation = pagenation;
+
+            res.status(StatusCodes.OK).json(allBooksRes);
+        });
     });
 };
 
