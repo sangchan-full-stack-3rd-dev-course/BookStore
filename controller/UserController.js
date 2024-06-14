@@ -41,7 +41,7 @@ class UserController extends MainController {
 
             let data = { msg : `환영합니다. ${name}님` };
     
-            this.setResponse(200, data);
+            this.set(200, data);
             this.send(res);
         }
         catch(err){
@@ -124,7 +124,6 @@ const passwordReset = (req, res) => {
 };
 
 module.exports = { 
-    join,
     login,
     passwordResetRequest,
     passwordReset,

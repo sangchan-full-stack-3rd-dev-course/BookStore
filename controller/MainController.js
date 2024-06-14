@@ -7,7 +7,7 @@ class MainController {
         this.response;
     }
 
-    setResponse(code, data){
+    set(code, data){
         this.response = new Response(code, data);
     }
 
