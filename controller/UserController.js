@@ -16,6 +16,7 @@ class UserController extends MainController {
     constructor() {
         super();
         this.join = this.join.bind(this);
+        this.login = this.login.bind(this);
     }
 
     async join(req,res,next){
@@ -48,33 +49,40 @@ class UserController extends MainController {
             next(err);
         }
     }
-}
 
+    async login(req,res,next){
+        try{
+            const { email, password } = req.body;
 
-const login = async (req, res) => {
-    const { email, password } = req.body;
+            if(!email || !password){
+                throw ServerError.badRequest("입력 값이 유효하지 않습니다.");
+            }
 
-    let users = await findUsers(email);
+            let users = await findUsers(email);
+            const loginUser = users[0];
+            const inputPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+            let data = {};
 
-    const loginUser = users[0];
-    const inputPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+            if(!loginUser || inputPassword != loginUser.password){
+                throw ServerError.unauthorized("이메일이나 비밀번호가 일치하지 않습니다.");
+            }
 
-    if(loginUser && inputPassword == loginUser.password){
-        const token = jwt.sign({ user_id : loginUser.id, email : loginUser.email },
-            process.env.SECRET_KEY,
-            { expiresIn : '30m', issuer : 'HK' }
-        );
-
-        res.cookie("token", token, { httpOnly : true });
-        res.status(StatusCodes.OK).json({
-            message : `로그인 성공`
-        });
-    } else {
-        res.status(StatusCodes.UNAUTHORIZED).json({
-            message : `로그인 실패!`
-        });
+            const token = jwt.sign({ user_id : loginUser.id, email : loginUser.email },
+                process.env.SECRET_KEY,
+                { expiresIn : '30m', issuer : 'HK' }
+            );
+    
+            res.cookie("token", token, { httpOnly : true });
+            
+            data.message = `로그인 성공`;
+            this.set(200, data);
+            this.send(res);
+        }
+        catch(err){
+            next(err);
+        }
     }
-};
+}
 
 const passwordResetRequest = (req, res) => {
     const { email } = req.body;
@@ -123,8 +131,7 @@ const passwordReset = (req, res) => {
     });
 };
 
-module.exports = { 
-    login,
+module.exports = {
     passwordResetRequest,
     passwordReset,
     UserController
