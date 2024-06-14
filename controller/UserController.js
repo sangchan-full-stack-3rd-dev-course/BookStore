@@ -8,7 +8,7 @@ const dotenv = require('dotenv');
 const {
     MainController
 } = require('./MainController');
-const { ServerError } = require('../utils/response');
+const { ServerError } = require('../utils/errors');
 let {addUser, findUsers} = require('../db/context/userContext');
 dotenv.config();
 
@@ -42,8 +42,7 @@ class UserController extends MainController {
 
             let data = { msg : `환영합니다. ${name}님` };
     
-            this.set(200, data);
-            this.send(res);
+            this.success(200, data).send(res);
         }
         catch(err){
             next(err);
@@ -59,12 +58,18 @@ class UserController extends MainController {
             }
 
             let users = await findUsers(email);
-            const loginUser = users[0];
-            const inputPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+
+            if(users.length == 0){
+                throw ServerError.unauthorized("존재하지 않는 회원입니다.");
+            }
+
             let data = {};
 
-            if(!loginUser || inputPassword != loginUser.password){
-                throw ServerError.unauthorized("이메일이나 비밀번호가 일치하지 않습니다.");
+            const loginUser = users[0];
+            const inputPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+
+            if(inputPassword != loginUser.password){
+                throw ServerError.unauthorized("비밀번호가 일치하지 않습니다.");
             }
 
             const token = jwt.sign({ user_id : loginUser.id, email : loginUser.email },
@@ -75,8 +80,7 @@ class UserController extends MainController {
             res.cookie("token", token, { httpOnly : true });
             
             data.message = `로그인 성공`;
-            this.set(200, data);
-            this.send(res);
+            this.success(200, data).send(res);
         }
         catch(err){
             next(err);

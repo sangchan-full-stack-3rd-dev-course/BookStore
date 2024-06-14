@@ -1,10 +1,3 @@
-class Response{
-    constructor(code, data) {
-        this.code = code;
-        this.data = data;
-    }
-}
-
 class ServerError extends Error{
     constructor(name, message) {
         super(name, message);
@@ -34,6 +27,5 @@ class ServerError extends Error{
 }
 
 module.exports = {
-    Response,
     ServerError
 }
