@@ -15,6 +15,9 @@ const cartRouter = require("./routes/carts");
 const bookRouter = require("./routes/books");
 const tokenRouter = require("./routes/tokens");
 
+// handelr
+const { errorHandler } = require("./utils/errors");
+
 app.use("/users", userRouter);
 app.use("/orders", orderRouter);
 app.use("/category", categoryRouter);
@@ -22,6 +25,6 @@ app.use("/likes", likeRouter);
 app.use("/carts", cartRouter);
 app.use("/books", bookRouter);
 app.use("/tokens", tokenRouter);
-
+app.use(errorHandler);
 // listen
 app.listen(process.env.PORT);

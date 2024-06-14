@@ -1,8 +1,8 @@
 class ServerError extends Error{
-    constructor(name, message) {
-        super(name, message);
+    constructor(code, message) {
+        super(message);
+        this.code = code;
     }
-
     static badRequest(message){
         let errorMsg = `Bad Request: ${message}`;
         return new ServerError(400, errorMsg);
@@ -26,6 +26,20 @@ class ServerError extends Error{
     }
 }
 
+const errorHandler = (err, req, res, next) => {
+    if(err instanceof ServerError){
+        let data = {};
+        data.message = err.message;
+        res.status(err.code).send(data);
+    }
+    else{
+        console.error(err);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
+
 module.exports = {
-    ServerError
+    ServerError,
+    errorHandler
 }
