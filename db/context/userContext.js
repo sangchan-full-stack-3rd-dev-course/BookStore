@@ -28,7 +28,22 @@ const findUsers = async (email) => {
     }
 }
 
+const updatePassword = async (password, salt, email) => {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        let sql = `UPDATE users SET password = ?, salt = ? WHERE email= ?`;
+        let [results] = await conn.query(sql, [password, salt, email]);
+        return results;
+    } catch (err) {
+        throw err;
+    } finally {
+        if (conn) conn.release();
+    }
+}
+
 module.exports = {
     addUser,
-    findUsers
+    findUsers,
+    updatePassword,
 }
