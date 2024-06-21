@@ -6,8 +6,37 @@ const {
     verifyToken
 } = require('../utils/token');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
+const {
+    MainController
+} = require('./MainController');
 const dotenv = require('dotenv');
 dotenv.config();
+
+class BookController extends MainController {
+    constructor() {
+        super();
+        this.getBooks = this.getBooks.bind(this);
+        this.getBoofInfo = this.getBookInfo.bind(this);
+    }
+
+    async getBooks(req,res,next) {
+        try{
+
+        }
+        catch(err){
+            next(err);
+        }
+    }
+
+    async getBookInfo(req,res,next) {
+        try{
+            
+        }
+        catch(err){
+            next(err);
+        }
+    }
+}
 
 // 도서 조회 with category
 const getBooks = (req, res)=>{

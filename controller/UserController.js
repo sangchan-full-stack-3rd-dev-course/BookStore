@@ -20,7 +20,6 @@ class UserController extends MainController {
         this.passwordResetRequest = this.passwordResetRequest.bind(this);
         this.passwordReset = this.passwordReset.bind(this);
     }
-
     async join(req,res,next){
         try{
             const { email, name, password } = req.body;
@@ -50,7 +49,6 @@ class UserController extends MainController {
             next(err);
         }
     }
-
     async login(req,res,next){
         try{
             const { email, password } = req.body;
@@ -88,7 +86,6 @@ class UserController extends MainController {
             next(err);
         }
     }
-
     async passwordResetRequest(req,res,next){
         try{
             const { email } = req.body;
@@ -113,7 +110,6 @@ class UserController extends MainController {
             next(err);
         }
     }
-
     async passwordReset(req,res,next){
         try{
             const { email, password } = req.body;

@@ -1,110 +1,82 @@
-const connection = require('../db/connect');
+const { ServerError } = require('../utils/errors');
+const { MainController } = require('./MainController');
 const {
-    StatusCodes
-} = require('http-status-codes');
-const {
-    verifyToken
-} = require('../utils/token');
-const { TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
+    addCartItem,
+    findCartItems,
+    deleteCartItem,
+} = require('../db/context/cartContext');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
-// 장바구니 담기
-const addToCart = (req, res) => {
-    const { book_id, count } = req.body;
-
-    let userInfo = verifyToken(req);
-
-    if (userInfo instanceof TokenExpiredError) {
-        console.error("1:",userInfo.message);
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    } else if (userInfo instanceof JsonWebTokenError) {
-        console.error("2:",userInfo.message);
-        return res.status(StatusCodes.BAD_REQUEST).end();
+class CartController extends MainController {
+    constructor() {
+        super();
+        this.addToCart = this.addToCart.bind(this);
+        this.getCartItems = this.getCartItems.bind(this);
+        this.removeCartItem = this.removeCartItem.bind(this);
     }
-    
-    let sql = `INSERT INTO cartItems (book_id, user_id, count) VALUES (?,?,?)
-                ON DUPLICATE KEY
-                UPDATE count = count + VALUES(count)`;
+    async addToCart(req,res,next){
+        try{
+            const { book_id, count } = req.body;
 
-    let values = [book_id, userInfo.user_id, count];
+            if(!book_id || !count){
+                throw ServerError.badRequest("입력 값이 유효하지 않습니다.");
+            }
 
-    connection.query(sql, values, (err, results)=>{
-        if(err) {
-            console.error(err);
-            return res.status(StatusCodes.BAD_REQUEST).end();
+            let userInfo = req.userInfo;
+
+            let results = await addCartItem(book_id, userInfo.user_id, count);
+            
+            if(results.affectedRows == 0){
+                throw ServerError.badRequest("장바구니 담기에 실패하였습니다.");
+            }
+
+            let data = { msg : `상품 추가 성공!` };
+            this.success(200, data).send(res);
         }
+        catch(err){
+            next(err);
+        }
+    }
+    async getCartItems(req,res,next){
+        try{
+            const { cart_ids } = req.body;
 
-        return res.status(StatusCodes.OK).end();
-    });
+            if(cart_ids===undefined){
+                throw ServerError.badRequest("입력 값이 유효하지 않습니다.");
+            }
+
+            let userId = req.userInfo.user_id;
+            
+            let [results] = await findCartItems(userId, cart_ids);
+
+            let data = { carts : results };
+            this.success(200, data).send(res);
+        }
+        catch(err){
+            console.log(err);
+            next(err);
+        }
+    }
+    async removeCartItem(req,res,next){
+        try{
+            let { cart_id } = req.params;
+            cart_id = parseInt(cart_id);
+
+            let [results] = await this.deleteCartItem(cart_id);
+
+            let data = { message : `장바구니 제거 성공!` }
+            this.success(200, data).send(res);
+        }
+        catch(err){
+            next(err);
+        }
+    }
 }
 
-// 장바구니 아이템 목록 조회
-const getCartItems = (req, res) => {
-    // cartIds 가 있으면 선택 상품, 없으면 전체 조회
-    const { cart_ids } = req.body;
 
-    let userInfo = verifyToken(req);
-
-    if (userInfo instanceof TokenExpiredError) {
-        console.error("1:",userInfo.message);
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    } else if (userInfo instanceof JsonWebTokenError) {
-        console.error("2:",userInfo.message);
-        return res.status(StatusCodes.BAD_REQUEST).end();
-    }
-
-    let values = [userInfo.user_id];
-
-    let sql = `SELECT cartItems.id, book_id, title, summary, count, price 
-                FROM cartItems LEFT JOIN books ON cartItems.book_id = books.id
-                WHERE user_id = ?`;
-    
-    if (cart_ids.length) {
-        values.push(cart_ids);
-        sql += ` AND cartItems.id IN (?)`;
-    }
-
-    connection.query(sql, values, (err, results)=>{
-        if(err) {
-            console.error(err);
-            return res.status(StatusCodes.BAD_REQUEST).end();
-        }
-
-        if(results.length) {
-            res.status(StatusCodes.OK).json({
-                categorys : results
-            });
-        } else {
-            res.status(StatusCodes.NOT_FOUND).end();
-        }
-    });
-}
-
-// 장바구니 삭제
-const deleteCartItem = (req, res) => {
-    let { cart_id } = req.params;
-    cart_id = parseInt(cart_id);
-    
-    let sql = `DELETE FROM cartItems WHERE id =?`;
-
-    connection.query(sql, cart_id, (err, results)=>{
-        if(err) {
-            console.error(err);
-            return res.status(StatusCodes.BAD_REQUEST).end();
-        }
-
-        if(results.attectedRows == 0){
-            res.status(StatusCodes.NOT_FOUND).end(); 
-        } else {
-            res.status(StatusCodes.OK).end(); 
-        }
-    });
-}
+// 장바구
 
 module.exports = {
-    addToCart,
-    getCartItems,
-    deleteCartItem
+    CartController
 };
