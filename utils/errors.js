@@ -19,7 +19,10 @@ class ServerError extends Error{
         let errorMsg = `NotFound: ${message}`;
         return new ServerError(500, errorMsg);
     }
-
+    static reference(message){
+        let errorMsg = `Reference Error: ${message}`;
+        return new ServerError(500, errorMsg);
+    }
     static etcError(code, message){
         let errorMsg = `Unknown Error: ${message}`;
         return new ServerError(code, errorMsg);
@@ -27,14 +30,14 @@ class ServerError extends Error{
 }
 
 const errorHandler = (err, req, res, next) => {
+    let data = {};
     if(err instanceof ServerError){
-        let data = {};
         data.message = err.message;
-        res.status(err.code).send(data);
+        res.status(err.code).json(data);
     }
     else{
-        console.error(err);
-        res.status(500).send("Internal Server Error");
+        data.message = "Undefined Error:" + err.name  + err.message;
+        res.status(500).json(data);
     }
 }
 

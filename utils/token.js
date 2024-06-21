@@ -2,20 +2,23 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const verifyToken = (req) => {
+const { ServerError } = require('../utils/errors');
+
+const verifyToken = (req, res, next) => {
     try{
         let token = req.cookies.token;
 
         if(!token){
-            throw new ReferenceError("jwt must be provided");
+            throw ServerError.reference("jwt must be provided");
         }
 
         let userInfo = jwt.verify(token, process.env.SECRET_KEY);
-        return userInfo;
+        
+        req.userInfo = userInfo;
+        next();
     } catch(err){
-        console.error(err.name);
-        console.error(err.message);
-        return err;
+        next(err);
+        return;
     }
 }
 
