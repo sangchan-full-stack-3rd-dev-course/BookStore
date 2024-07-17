@@ -7,12 +7,12 @@ dotenv.config();
 app.use(cookieParser());
 
 // router
-const userRouter = require("./routes/users");
-const orderRouter = require("./routes/orders");
-const categoryRouter = require("./routes/category");
-const likeRouter = require("./routes/likes");
-const cartRouter = require("./routes/carts");
-const bookRouter = require("./routes/books");
+const userRouter = require("../routes/users");
+const orderRouter = require("../routes/orders");
+const categoryRouter = require("../routes/category");
+const likeRouter = require("../routes/likes");
+const cartRouter = require("../routes/carts");
+const bookRouter = require("../routes/books");
 
 // handelr
 const { verifyToken} = require('./utils/token');
