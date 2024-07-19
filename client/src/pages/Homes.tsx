@@ -1,9 +1,13 @@
+import Title from "../components/common/Title";
+
 const Homes = () => {
   return (
-    <div>
-        <div> home body </div>
-    </div>
+    <>
+      <Title size='medium' color='background'>
+        제목 테스트
+      </Title>
+    </>
   )
 }
 
-export default Homes
+export default Homes;
