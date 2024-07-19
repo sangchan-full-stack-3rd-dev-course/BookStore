@@ -2,15 +2,27 @@ import Layout from "./components/layout/Layout";
 import Homes from "./pages/Homes";
 import ThemeSwitcher from "./components/header/ThemeSwitcher";
 import { BookStoreThemeProvider } from "./context/themeContext";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Error from "./components/common/Error";
 
+const router = createBrowserRouter([
+  {
+    path : '/',
+    element : <Layout><Homes/></Layout>,
+    errorElement : <Error/>
+  },
+  {
+    path : '/books',
+    element : <Layout><div>도서 목록</div></Layout>,
+    errorElement : <div>오류 발생</div>
+  }
+]);
 
 function App() {
   return (
     <BookStoreThemeProvider>
         <ThemeSwitcher/>
-        <Layout>
-          <Homes/>
-        </Layout>
+          <RouterProvider router={router}/>
     </BookStoreThemeProvider>
   );
 }
