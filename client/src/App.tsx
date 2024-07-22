@@ -4,6 +4,7 @@ import ThemeSwitcher from "./components/header/ThemeSwitcher";
 import { BookStoreThemeProvider } from "./context/themeContext";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Error from "./components/common/Error";
+import SignUp from "./pages/SignUp";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,13 @@ const router = createBrowserRouter([
   {
     path : '/books',
     element : <Layout><div>도서 목록</div></Layout>,
+    errorElement : <div>오류 발생</div>
+  },
+  {
+    path : '/signup',
+    element : <Layout>
+      <SignUp/>
+    </Layout>,
     errorElement : <div>오류 발생</div>
   }
 ]);

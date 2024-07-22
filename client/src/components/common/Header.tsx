@@ -55,7 +55,7 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link to="/join">
+            <Link to="/signup">
               <FaRegUser/>회원가입
             </Link>
           </li>

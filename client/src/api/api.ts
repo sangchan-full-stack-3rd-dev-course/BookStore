@@ -9,8 +9,6 @@ export const createClient = ( config? : AxiosRequestConfig ) => {
         timeout : DEFAULT_TIMEOUT,
         headers : {
             "content-type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            'Access-Control-Allow-Credentials' : 'true'
         },
         withCredentials: true,
        ...config,
