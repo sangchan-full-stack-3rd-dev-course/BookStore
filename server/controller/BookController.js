@@ -2,9 +2,6 @@ const connection = require('../db/connect');
 const {
     StatusCodes
 } = require('http-status-codes');
-const {
-    verifyToken
-} = require('../utils/token');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const {
     MainController
@@ -113,7 +110,7 @@ const getBookInfo = (req, res) => {
     let { book_id } = req.params;
     book_id = parseInt(book_id);
 
-    let userInfo = verifyToken(req);
+    let userInfo = req.userInfo;
 
     let sql = `SELECT B.id, B.title, C.name, B.form, B.summary, B.detail, B.author, B.pages, B.contents, B.price, B.pub_date,
                 (select count(*) from likes where liked_book_id = B.id) as likes`;

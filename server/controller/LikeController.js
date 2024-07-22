@@ -2,9 +2,6 @@ const connection = require('../db/connect');
 const {
     StatusCodes
 } = require('http-status-codes');
-const {
-    verifyToken
-} = require('../utils/token');
 const dotenv = require('dotenv');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 dotenv.config();
@@ -12,7 +9,7 @@ dotenv.config();
 const addLike = (req, res) => {
     let { book_id } = req.body;
 
-    let userInfo = verifyToken(req);
+    let userInfo = req.userInfo;
 
     if (userInfo instanceof TokenExpiredError) {
         console.error("1:",userInfo.message);
@@ -38,7 +35,7 @@ const addLike = (req, res) => {
 const removeLike = (req, res) => {
     let { book_id } = req.body;
 
-    let userInfo = verifyToken(req);
+    let userInfo = req.userInfo;
 
     if (userInfo instanceof TokenExpiredError) {
         console.error("1:",userInfo.message);

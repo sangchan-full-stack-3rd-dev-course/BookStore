@@ -3,36 +3,40 @@ const {
     StatusCodes
 } = require('http-status-codes');
 const dotenv = require('dotenv');
+const { findCategorys } = require('../db/context/categoryContext');
+const { ServerError } = require('../utils/errors');
+const { MainController } = require('./MainController');
 dotenv.config();
 
-// category 조회
-const getCategorys = (req, res)=>{
-    let { category_id } = req.body;
-    category_id = parseInt(category_id)
+class CategoryController extends MainController {
+    constructor() {
+        super();
+        this.getCategorys = this.getCategorys.bind(this);
+    };
 
-    let sql = `SELECT * FROM category `
+    async getCategorys (req, res, next) {
+        try {
+            let { category_id } = req.body;
 
-    if (category_id || category_id === 0) {
-        sql += `WHERE id =?;`;
+            if(category_id){
+                category_id = parseInt(category_id);
+            }
+
+            let results = await findCategorys(category_id);
+
+            if(!results.length) {
+                throw ServerError.notFound("카테고리가 존재하지 않습니다.");
+            }
+
+            this.success(200, results).send(res);
+        }
+        catch(err){
+            next(err);
+        }
     }
 
-    connection.query(sql, category_id, (err, results)=>{
-        if(err) {
-            console.error(err);
-            return res.status(StatusCodes.BAD_REQUEST).end();
-        }
-
-        if(results.length) {
-            res.status(StatusCodes.OK).json({
-                categorys : results
-            });
-        } else {
-            res.status(StatusCodes.NOT_FOUND).end();
-        }
-    });
 };
 
-
 module.exports = {
-    getCategorys
-}
+    CategoryController
+};

@@ -3,9 +3,6 @@ const mariadb = require('mysql2/promise');
 const {
     StatusCodes
 } = require('http-status-codes');
-const {
-    verifyToken
-} = require('../utils/token');
 const { JsonWebTokenError, TokenExpiredError } = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -21,7 +18,7 @@ const addOrder = async (req, res) => {
 
     const { items, delivery, totalCount, totalPrice, firstBookTitle } = req.body;
 
-    let userInfo = verifyToken(req);
+    let userInfo = req.userInfo;
 
     if (userInfo instanceof TokenExpiredError) {
         console.error("1:",userInfo.message);
@@ -79,7 +76,7 @@ const getOrders = async (req, res) => {
         password: process.env.DB_PSWORD,
     });
 
-    let userInfo = verifyToken(req);
+    let userInfo = req.userInfo;
 
     if (userInfo instanceof TokenExpiredError) {
         console.error("1:",userInfo.message);
