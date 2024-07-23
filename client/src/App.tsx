@@ -7,16 +7,21 @@ import Error from "./components/common/Error";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import Login from "./pages/Login";
+import Books from "./pages/Books";
 
 const router = createBrowserRouter([
   {
     path : '/',
-    element : <Layout><Homes/></Layout>,
+    element : <Layout>
+        <Homes/>
+      </Layout>,
     errorElement : <Error/>
   },
   {
     path : '/books',
-    element : <Layout><div>도서 목록</div></Layout>,
+    element : <Layout>
+      <Books/>
+    </Layout>,
     errorElement : <div>오류 발생</div>
   },
   {

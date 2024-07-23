@@ -1,4 +1,4 @@
-export interface Pagenation {
-    currentPage: number;
+export interface IPagenation {
     totalCount : number;
+    currentPage: number;
 }

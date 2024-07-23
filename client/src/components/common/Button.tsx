@@ -8,15 +8,17 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement>{
     scheme : ButtonScheme;
     disabled? : boolean;
     isLoading? : boolean;
+    onClick? : () => void;
 };
 
-const Button : React.FC<Props> = ({ children, size, scheme, disabled, isLoading }) => {
+const Button : React.FC<Props> = ({ children, size, scheme, disabled, isLoading, onClick }) => {
   return (
     <ButtonStyle
         size={size}
         scheme={scheme}
         disabled={disabled}
         isLoading={isLoading}
+        onClick={onClick}
     >{children}
     </ButtonStyle>
   )
