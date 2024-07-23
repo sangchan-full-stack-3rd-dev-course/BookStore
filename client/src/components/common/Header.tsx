@@ -3,6 +3,7 @@ import { FaSignInAlt, FaRegUser } from 'react-icons/fa';
 import logo from '../../assets/images/book-store-logo.png';
 import { Link } from "react-router-dom";
 import { useCategory } from "../../hooks/useCategory";
+import { useAuthStore } from "../../store/authStore";
 
 // const CATEGORY = [
 //   {
@@ -26,6 +27,7 @@ import { useCategory } from "../../hooks/useCategory";
 
 const Header = () => {
   const { category } = useCategory();
+  const { isLogined, storeLogout } = useAuthStore();
 
   return (
     <HeaderStyle>
@@ -48,6 +50,19 @@ const Header = () => {
         </ul>
       </nav>
       <nav className="auth">
+      {isLogined ?
+        <ul>
+          <li>
+            <Link to="/cart">장바구니</Link>
+          </li>
+          <li>
+            <Link to="/orderlist">주문 내역</Link>
+          </li>
+          <li>
+            <button onClick={storeLogout}>로그아웃</button>
+          </li>
+        </ul>
+      :
         <ul>
           <li>
             <Link to="/login">
@@ -60,6 +75,7 @@ const Header = () => {
             </Link>
           </li>
         </ul>
+      }
       </nav>
     </HeaderStyle>
     
@@ -108,13 +124,16 @@ const HeaderStyle = styled.header`
       align-items : center;
       gap : 16px;
       li {
-        a {
+        a, button {
           font-size : 1rem;
           font-weight : 600;
           text-decoration : none;
           display : flex;
           align-item : center;
           line-height : 1;
+          background : none;
+          border : 0;
+          cursor : pointer;
           svg {
             margin-right : 6px;
           }

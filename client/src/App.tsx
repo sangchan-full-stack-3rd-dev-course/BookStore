@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Error from "./components/common/Error";
 import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
+import Login from "./pages/Login";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,13 @@ const router = createBrowserRouter([
     path : '/reset',
     element : <Layout>
       <ResetPassword/>
+    </Layout>,
+    errorElement : <div>오류 발생</div>
+  },
+  {
+    path : '/login',
+    element : <Layout>
+      <Login/>
     </Layout>,
     errorElement : <div>오류 발생</div>
   }

@@ -80,6 +80,8 @@ class UserController extends MainController {
             res.cookie("token", token, { httpOnly : true });
             
             data.message = `로그인 성공`;
+            data.token = token;
+
             this.success(200, data).send(res);
         }
         catch(err){
