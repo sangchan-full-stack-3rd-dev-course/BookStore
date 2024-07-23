@@ -18,10 +18,11 @@ const findUsers = async (email) => {
     let conn;
     try {
         conn = await pool.getConnection();
-        let sql = `SELECT * FROM users WHERE email = ?`;
-        let [results] = await conn.query(sql, email);
+        let sql = `SELECT * FROM users WHERE email =?`;
+        const [results] = await conn.query(sql, [email]);
         return results;
     } catch (err) {
+        console.log(err);
         throw err;
     } finally {
         if (conn) conn.release();

@@ -96,7 +96,7 @@ class UserController extends MainController {
 
             let users = await findUsers(email);
 
-            if(users.length == 0){
+            if(users.length === 0){
                 throw ServerError.unauthorized("존재하지 않는 회원입니다.");
             }
 
